@@ -1,9 +1,8 @@
 # ros-devel
 Ros developement environnement under docker container to use any ros version with any linux distribution
 
-### Example build
 ```
-docker build . -t alabate/ros-devel:indigo
+docker pull alabate/ros-devel:indigo
 ```
 
 ### Example run
