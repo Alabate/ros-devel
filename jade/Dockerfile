@@ -1,4 +1,4 @@
-FROM osrf/ros:jade-desktop
+FROM osrf/ros:jade-desktop-full
 
 # Utilities
 RUN apt-get -y update && apt-get install -y \

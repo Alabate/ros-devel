@@ -1,4 +1,4 @@
-FROM osrf/ros:lunar-desktop
+FROM osrf/ros:lunar-desktop-full
 
 # Utilities
 RUN apt-get -y update && apt-get install -y \

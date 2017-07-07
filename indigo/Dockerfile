@@ -1,4 +1,4 @@
-FROM osrf/ros:indigo-desktop
+FROM osrf/ros:indigo-desktop-full
 
 # Utilities
 RUN apt-get -y update && apt-get install -y \

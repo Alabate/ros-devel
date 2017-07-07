@@ -1,4 +1,4 @@
-FROM osrf/ros:kinetic-desktop
+FROM osrf/ros:kinetic-desktop-full
 
 # Utilities
 RUN apt-get -y update && apt-get install -y \
