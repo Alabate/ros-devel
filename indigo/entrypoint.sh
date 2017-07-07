@@ -22,8 +22,12 @@ export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 
 # Create user, group and allow sudo without password
-groupadd -g "${_GID}" "${_USER}"
-useradd -d "${_HOME}" -g "${_USER}" -G sudo,dialout,tty -s "${_SHELL}" -u "${_UID}" "${_USER}"
+if [ -z $(awk -F: -v U="${_GID}" '$3==U {print "1";exit}' /etc/group) ] ; then
+    groupadd -g "${_GID}" "${_USER}"
+fi
+if [ -z $(awk -F: -v U="${_UID}" '$3==U {print "1";exit}' /etc/passwd) ] ; then
+    useradd -d "${_HOME}" -g "${_USER}" -G sudo,dialout,tty -s "${_SHELL}" -u "${_UID}" "${_USER}"
+fi
 echo "${_USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${_USER}"
 chmod 0440 "/etc/sudoers.d/${_USER}"
 mkdir -p "${_HOME}"

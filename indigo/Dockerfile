@@ -4,7 +4,6 @@ FROM osrf/ros:indigo-desktop
 RUN apt-get -y update && apt-get install -y \
     screen \
     sudo \
-    ssh \
     x11-apps \
     python-pip \
     build-essential \
@@ -13,6 +12,9 @@ RUN apt-get -y update && apt-get install -y \
     nano \
     git
 RUN pip install catkin_tools
+
+# Fix 'Gtk-Message: Failed to load module canberra-gtk-module'
+RUN apt-get -y install libcanberra-gtk-module
 
 # Intel GPU
 RUN apt-get -y install libgl1-mesa-glx libgl1-mesa-dri mesa-utils
@@ -34,6 +36,10 @@ RUN echo "export SSH_CLIENT=1" >> /etc/zsh/zshenv
 # Source ros env
 RUN echo "source /opt/ros/indigo/setup.zsh" >> /etc/zsh/zshenv
 RUN echo "source /opt/ros/indigo/setup.bash" >> /etc/bash.bashrc
+
+# Fix BadDrawable in rviz
+RUN echo "export QT_X11_NO_MITSHM=1" >> /etc/zsh/zshenv
+RUN echo "export QT_X11_NO_MITSHM=1" >> /etc/bash.bashrc
 
 # Entrypoint
 CMD /bin/bash
