@@ -1,8 +1,8 @@
 # ROS Devel
 **ROS Devel** is a set of docker images made to develop with any ROS version on any Linux distributions.
-You can easily develop for ROS Indigo (Ubuntu 14.04) from the latest Ubuntu or even from another distribution like Archlinux.
-You could even work on multiple ROS versions at the same time without struggling with dependencies.
-All images have ros-desktop-full installed but if it's not enough you can still manually install other packages.
+You can easily develop for ROS Indigo (Ubuntu 14.04) from the latest Ubuntu or even from another
+distribution like Archlinux without struggling with dependencies.
+All images have ros-desktop-full installed, but if it's not enough, you can still manually install other packages.
 
 ## What's supported
 The aim of this project is to have a developement environnement which look exactly
