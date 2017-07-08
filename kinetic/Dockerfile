@@ -34,8 +34,8 @@ LC_ALL=C.UTF-8" > /etc/default/locale
 RUN echo "export SSH_CLIENT=1" >> /etc/zsh/zshenv
 
 # Source ros env
-RUN echo "source /opt/ros/indigo/setup.zsh" >> /etc/zsh/zshenv
-RUN echo "source /opt/ros/indigo/setup.bash" >> /etc/bash.bashrc
+RUN echo "source /opt/ros/kinetic/setup.zsh" >> /etc/zsh/zshenv
+RUN echo "source /opt/ros/kinetic/setup.bash" >> /etc/bash.bashrc
 
 # Fix BadDrawable in rviz
 RUN echo "export QT_X11_NO_MITSHM=1" >> /etc/zsh/zshenv

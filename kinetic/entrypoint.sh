@@ -36,8 +36,5 @@ chown "${_USER}:${_USER}" "${_HOME}"
 # Put dynamic hostname into /etc/hosts to remove sudo warnings
 echo "127.0.0.1	`hostname`.localdomain	`hostname`" >> /etc/hosts
 
-# setup ros environment
-source "/opt/ros/$ROS_DISTRO/setup.bash"
-
 # Exec CMD or docker run parameter
 exec sudo -iu ${_USER} ${_CMD}
