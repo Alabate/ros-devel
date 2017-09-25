@@ -39,7 +39,7 @@ case "$1" in
             # Start our container as a deamon doing nothing
             docker run \
                 -e USER=$USER -e UID=`id -u $USER` -e GID=`id -g $USER` -e HOME=$HOME -e SHELL=$SHELL \
-                -e DISPLAY \
+                -e DISPLAY -e TERM \
                 --privileged \
                 -v "/dev:/dev:rw" \
                 -v "${HOME}:${HOME}:rw" \
@@ -52,7 +52,7 @@ case "$1" in
         fi
 
         # Attach a terminal into the container
-        docker exec -it ros-devel-$2 /entrypoint.sh
+        exec docker exec -it ros-devel-$2 /entrypoint.sh
     else
         echo "Their is no container named $2. You have to initialize it first."
     fi
