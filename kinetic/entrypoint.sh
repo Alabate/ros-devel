@@ -9,7 +9,7 @@ _UID=${UID:=1000}
 _GID=${GID:=1000}
 _HOME=${HOME:=/home/$_USER}
 _SHELL=${SHELL:=/bin/bash}
-_CMD=${@:-$SHELL}
+if [ $# -eq 0 ] ; then _CMD=$_SHELL ; else _CMD=$@ ; fi
 
 # Disable root login
 if [ "$_USER" = "root" ] ; then _USER=user ; fi
