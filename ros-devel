@@ -1,0 +1,116 @@
+#!/bin/sh
+
+# ros-devel init [distrib-name] [container-name]
+# ros-devel attach [container-name] # Attach a new terminal to this container
+# ros-devel commit [container-name] # Save modifications
+# ros-devel list # list available containers
+# ros-devel rm [container-name] # Remove
+
+case "$1" in
+"init")
+    docker images -aq -f before=ros-devel:$3 >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "Another container is already initialized with the same name. To remove it, run "
+        echo "    ros-devel rm $3"
+    else
+        docker run \
+            -e USER=$USER -e UID=`id -u $USER` -e GID=`id -g $USER` -e HOME=$HOME -e SHELL=$SHELL \
+            --name ros-devel-$3 alabate/ros-devel:$2
+        docker commit ros-devel-$3 ros-devel:$3
+        docker rm ros-devel-$3
+    fi
+    ;;
+
+"run")
+    # Check if image exists
+    docker images -aq -f before=ros-devel:$2 >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        # Allow docker windows to show on our current X Server
+        xhost + >> /dev/null
+
+        # If we have a not-running container
+        if [ "$(docker ps -qa -f name=ros-devel-$2)" ] && [ ! "$(docker ps -q -f name=ros-devel-$2)" ]; then
+            # Remove it
+            docker rm ros-devel-$2
+        fi
+
+        # If we have no container
+        if [ ! "$(docker ps -qa -f name=ros-devel-$2)" ]; then
+            # Start our container as a deamon doing nothing
+            docker run \
+                -e USER=$USER -e UID=`id -u $USER` -e GID=`id -g $USER` -e HOME=$HOME -e SHELL=$SHELL \
+                -e DISPLAY \
+                --privileged \
+                -v "/dev:/dev:rw" \
+                -v "${HOME}:${HOME}:rw" \
+                -v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+                --net=host \
+                --hostname $2 \
+                --name ros-devel-$2 \
+                --entrypoint /entrypoint.sh \
+                -d ros-devel:$2 /usr/bin/tail -f /dev/null
+        fi
+
+        # Attach a terminal into the container
+        docker exec -it ros-devel-$2 /entrypoint.sh
+    else
+        echo "Their is no container named $2. You have to initialize it first."
+    fi
+
+    ;;
+"rm")
+    # Check if their is a running container
+    if [ "$(docker ps -qa -f name=ros-devel-$2)" ]; then
+        docker rm -f ros-devel-$2
+    fi
+
+    # Check if their is images
+    docker images -aq -f before=ros-devel:$2 >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        docker rmi -f ros-devel:$2
+    fi
+    ;;
+"stop")
+    # Check if their is a running container
+    if [ "$(docker ps -qa -f name=ros-devel-$2)" ]; then
+        docker rm -f ros-devel-$2
+    fi
+    ;;
+"list")
+    echo "REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE"
+    docker images | grep ^ros-devel\\s
+    ;;
+"commit")
+    docker commit ros-devel-$2 ros-devel:$2
+    ;;
+*)
+    echo "Usage: ros-devel [command] [arguments]
+
+Available commands:
+
+    ros-devel init [ros-distrib] [container-name]
+        Create a new ros-devel container with the given container-name
+        Example: ros-devel init kinetic kinetic-myproject
+
+    ros-devel run [container-name]
+        Attach a new terminal to this container (and start it if necessary)
+        Example: ros-devel attach kinetic-myproject
+
+    ros-devel commit [container-name]
+        Save the state of the system of a running container for future use
+        Example: ros-devel commit kinetic-myproject
+
+    ros-devel stop [container-name]
+        Stop this running container
+        Example: ros-devel stop kinetic-myproject
+
+    ros-devel rm [container-name]
+        Stop and remove all containers and images associated to this container
+        Example: ros-devel rm kinetic-myproject
+
+    ros-devel list
+        List initialized containers
+        Example: ros-devel list
+"
+    ;;
+esac
