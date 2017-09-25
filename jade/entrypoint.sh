@@ -9,7 +9,14 @@ _UID=${UID:=1000}
 _GID=${GID:=1000}
 _HOME=${HOME:=/home/$_USER}
 _SHELL=${SHELL:=/bin/bash}
+_HOSTNAME=${HOSTNAME:=`hostname`}
 if [ $# -eq 0 ] ; then _CMD=$_SHELL ; else _CMD=$@ ; fi
+
+# Fix hostname that doesn't change for some versions of docker
+if [ "$_HOSTNAME" != `hostname` ] ; then
+    hostname $_HOSTNAME
+    echo $_HOSTNAME > /etc/hostname
+fi
 
 # Disable root login
 if [ "$_USER" = "root" ] ; then _USER=user ; fi

@@ -39,7 +39,7 @@ case "$1" in
             # Start our container as a deamon doing nothing
             docker run \
                 -e USER=$USER -e UID=`id -u $USER` -e GID=`id -g $USER` -e HOME=$HOME -e SHELL=$SHELL \
-                -e DISPLAY -e TERM \
+                -e DISPLAY -e TERM -e HOSTNAME=$2 \
                 --privileged \
                 -v "/dev:/dev:rw" \
                 -v "${HOME}:${HOME}:rw" \
