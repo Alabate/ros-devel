@@ -4,11 +4,11 @@ set -e
 echo $SSH_CLIENT
 
 # default env vars
-_USER=${USER:-user}
-_UID=${UID:-1000}
-_GID=${GID:-1000}
-_HOME=${HOME:-/home/$_USER}
-_SHELL=${SHELL:-/bin/bash}
+_USER=${USER:=user}
+_UID=${UID:=1000}
+_GID=${GID:=1000}
+_HOME=${HOME:=/home/$_USER}
+_SHELL=${SHELL:=/bin/bash}
 _CMD=${@:-$SHELL}
 
 # Disable root login
