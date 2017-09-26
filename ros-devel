@@ -82,7 +82,9 @@ case "$1" in
     ;;
 "commit")
     docker commit ros-devel-$2 ros-devel:$2
-    docker rmi `docker images -qaf before=ros-devel:$2 -f dangling=true`
+    if [ "$(docker images -qaf before=ros-devel:$2 -f dangling=true)" ]; then
+        docker rmi `docker images -qaf before=ros-devel:$2 -f dangling=true`
+    fi
     ;;
 *)
     echo "Usage: ros-devel [command] [arguments]
