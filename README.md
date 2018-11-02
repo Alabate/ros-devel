@@ -1,15 +1,13 @@
-## ROS Devel
-**ROS Devel** is a set of docker images made to develop with any ROS version on any Linux distributions. You can easily develop for ROS Indigo (Ubuntu 14.04) from the latest Ubuntu or even from another distribution like Archlinux without struggling with dependencies. All images have ros-desktop-full installed, but if it's not enough, you can still manually install other packages.
+ROS Devel
+===========
+**ROS Devel** is a tool made to develop with any ROS version on any Linux distributions. You can easily develop for ROS Indigo (Ubuntu 14.04) from the latest Ubuntu or even from another distribution like Archlinux without struggling with dependencies.
 
-### Supported tags
+To do this magic, ros-devel use Docker containers where ros environnement is already installed. All distributions have ros-desktop-full installed, but if it's not enough, you can still manually install other packages.
 
-* `indigo` ([indigo/Dockerfile](https://github.com/Alabate/ros-devel/blob/master/indigo/Dockerfile))
-* `jade` ([jade/Dockerfile](https://github.com/Alabate/ros-devel/blob/master/jade/Dockerfile))
-* `kinetic` ([kinetic/Dockerfile](https://github.com/Alabate/ros-devel/blob/master/kinetic/Dockerfile))
-* `lunar` ([lunar/Dockerfile](https://github.com/Alabate/ros-devel/blob/master/lunar/Dockerfile))
+What's supported
+----------------
 
-### What's supported
-The aim of this project is to have a developement environnement which look exactly like a classic ros installation:
+The aim of this project is to have a developement environnement which look exactly like a classic ros installation
 
 * Show any windows started under the container
 * Devices connected to host are available in the container
@@ -19,80 +17,86 @@ The aim of this project is to have a developement environnement which look exact
 
 Security note: Due to the fact that any device is available inside the container, you cannot consider the container as a sandbox anymore. For instance, a root user under the container can `mount /dev/sda` and do *root stuff* on it without a warning. So, be careful with the root user even in the container.
 
-### Getting started
+Install
+-------
+First install docker: https://docs.docker.com/install/linux/docker-ce/ubuntu/
 
-First, pull the version you want from docker hub. We will do this tutorial with *indigo* but you can of course replace it with any supported version.
+Then download and install the `ros-devel` script that will handle everything for you.
 
-```
-docker pull alabate/ros-devel:indigo
-```
-
-To run the container, we recommand to create this small bash script somewhere.
-
-```
-#!/bin/sh
-
-version=indigo
-
-# Allow docker windows to show on our current X Server
-xhost +
-
-# Start our container and delete the container with the same name if it exists
-exec docker run \
---rm \
--e USER=$USER -e UID=$UID -e GID=$GID -e HOME=$HOME -e SHELL=$SHELL \
--e DISPLAY \
---privileged \
--v "${HOME}:${HOME}:rw" \
--v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
---net=host \
---hostname ros-devel-${version} \
---name ros-devel-${version} \
--it alabate/ros-devel:${version}
+```bash
+wget https://raw.githubusercontent.com/Alabate/ros-devel/master/ros-devel
+chmod +x ros-devel
+sudo mv ros-devel /usr/local/bin
 ```
 
-Then execute it, you will be immedialty trown into the container, you can test it by running
+Getting started
+---------------
 
+Let say you want to start *rviz* under a *lunar* environnement.
+
+```bash
+# We will first init our kinetic environnement:
+ros-devel init lunar
+
+# Then connect our terminal to this container
+ros-devel run lunar
 ```
-# Get ubuntu version
-lsb_release -a
-
-# Test if ros works and get version in /rosdistro parameter
-roscore
-```
-
-### Persistant modification to the system
-Any modification to your home in the container will be persistant because it's your real home mounted inside the container. But if you modify any other directory, for instance, if you install packages, it will be dropped when you leave the container prompt.
-
-To save your modification, open another terminal and execute the following comamnd. Don't close the container's one or you will lose your modifications.
-
-```
-docker commit ros-devel-indigo alabate/ros-devel:indigo
-```
-
-And that's all.
-
-If you want to have multiple images, you can execute the following command, but you will also have to replace `indigo` by `indigo-myproject` in your run script.
-
-```
-# first time
-docker commit ros-devel-indigo alabate/ros-devel:indigo-myproject
-
-# Next time
-docker commit ros-devel-indigo-myproject alabate/ros-devel:indigo-myproject
+You are now inside the container, you can install new package, build your workspace and even start graphical interfaces like *rviz*:
+```bash
+roscore&
+rviz
 ```
 
-### Multiple terminal on the same container
-
-If you try to `docker attach`, you will end up in the same terminal as the first one. So you have to do this:
-
+You may want to connect to the same container from another terminal. That's easy, just run this command again:
 ```
-docker exec -it ros-devel-indigo /entrypoint.sh
+ros-devel run lunar
 ```
 
-### Troubleshoot
+Going further
+-------------
+If you need more informations, you can just call the help:
 
-#### Permission denied while starting the container
+```
+Usage: ros-devel [command] [arguments]
+
+Available commands:
+
+    ros-devel init [distribution-name]
+        Create a new ros-devel container from the given ROS distribution. The container name will be the 'distribution-name'
+        Example: ros-devel init lunar
+
+    ros-devel run [container-name]
+        Attach a new terminal to a ros-devel container (and start it if necessary)
+        Example: ros-devel attach lunar
+
+    ros-devel stop [container-name]
+        Stop this running container
+        Example: ros-devel stop lunar
+
+    ros-devel rm [container-name]
+        Stop and remove the containers from the system
+        Example: ros-devel rm lunar
+
+Advanced usage:
+
+    ros-devel init [container-name] [image]
+        Create a new ros-devel container from the given docker image (can be a remote one) with 'container-name' as container name
+        Example: ros-devel init mylunar alabate/ros-devel:lunar
+
+    ros-devel save [container-name] [image]
+        Save the given contaigner to a new image so it can be used later as a new container or pushed to a docker registry.
+        Example: ros-devel save lunar myimage
+```
+
+Not enough ?
+------------
+After all `ros-devel` is just a tiny bash script that you can fork and hack as you which. You can also do you own docker images to use with `ros-devel`.
+
+
+Troubleshoot
+------------
+
+### Permission denied while starting the container
 
 ```
 docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post http://%2Fvar%2Frun%2Fdocker.sock/v1.29/containers/create?name=ros-devel-indigo: dial unix /var/run/docker.sock: connect: permission denied.
@@ -105,7 +109,7 @@ usermod -aG docker $USER
 # Then logout from your session and login again
 ```
 
-#### Graphical hardware acceleration
+### Graphical hardware acceleration
 
 ```
 # Example of intel driver version mismatch error
@@ -121,7 +125,7 @@ Sadly this is the biggest drawback of this solution, docker doesn't play well wi
 * For intel: It seems that you have to have the same driver version between ghest and host and it should work, but not tested.
 * For nvidia: I tried to follow the gidelines from http://wiki.ros.org/docker/Tutorials/Hardware%20Acceleration, but not tested.
 
-To test if hardware acceleration work, start the following command and check if there is any error.
+To test if hardware acceleration works, start the following command and check if there is any error.
 
 ```
 glxgears
